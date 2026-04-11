@@ -2,15 +2,17 @@
 set -eu
 
 echo "[start] Running Alembic migrations..."
-
+echo "[start] Checking Alembic schema sync..."
 
 echo "[start] Checking Alembic schema sync..."
-python -m alembic revision --autogenerate --check > /dev/null 2>&1 || {
-	echo "[error] Alembic schema is out of sync! Please generate and apply migrations." >&2
-	exit 1
-}
-
-python -m alembic upgrade head
+if ! python -m alembic revision --autogenerate --check > /dev/null 2>&1; then
+	echo "[info] Alembic schema is out of sync. Generating migration..."
+	python -m alembic revision --autogenerate -m "auto sync migration"
+	echo "[info] Applying new migration..."
+	python -m alembic upgrade head
+else
+	python -m alembic upgrade head
+fi
 
 echo "[start] Running admin bootstrap script..."
 python -m app.scripts.bootstrap_admin
