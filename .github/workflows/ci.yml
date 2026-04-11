@@ -24,18 +24,18 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-      TEST_DB_NAME: specification_generator_test
-      TEST_DB_USER: postgres
-      TEST_DB_PASSWORD: postgres
-      SECRET_KEY: ${{ secrets.SECRET_KEY || 'ci_test_secret_key' }}
+      TEST_DB_NAME: ${{ secrets.TEST_DB_BASE_NAME }}
+      TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
+      TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     services:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: specification_generator_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ${{ secrets.TEST_DB_BASE_NAME }}
+          POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
