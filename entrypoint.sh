@@ -2,6 +2,14 @@
 set -eu
 
 echo "[start] Running Alembic migrations..."
+
+
+echo "[start] Checking Alembic schema sync..."
+python -m alembic revision --autogenerate --check > /dev/null 2>&1 || {
+	echo "[error] Alembic schema is out of sync! Please generate and apply migrations." >&2
+	exit 1
+}
+
 python -m alembic upgrade head
 
 echo "[start] Running admin bootstrap script..."
