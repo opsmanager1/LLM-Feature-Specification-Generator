@@ -1,4 +1,3 @@
-import uuid
 
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
@@ -21,13 +20,6 @@ class SecurityHeadersMiddleware:
                 headers.setdefault("X-Content-Type-Options", "nosniff")
                 headers.setdefault("X-Frame-Options", "DENY")
                 headers.setdefault("Referrer-Policy", settings.SECURITY_REFERRER_POLICY)
-
-                csp = settings.SECURITY_CSP
-                if "{nonce}" in csp:
-                    nonce = uuid.uuid4().hex
-                    scope["csp_nonce"] = nonce
-                    csp = csp.replace("{nonce}", nonce)
-                headers.setdefault("Content-Security-Policy", csp)
 
                 if settings.ENV.lower() == "production":
                     headers.setdefault(
