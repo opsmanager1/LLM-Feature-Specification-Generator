@@ -31,9 +31,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = ["*"]
     SECURITY_TRUSTED_HOSTS: list[str] = ["*"]
     SECURITY_ENABLE_HTTPS_REDIRECT: bool = False
-    SECURITY_CSP: str = (
-        "default-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
-    )
+    SECURITY_CSP: str = ""
     SECURITY_REFERRER_POLICY: str = "strict-origin-when-cross-origin"
     SECURITY_CORS_ALLOW_METHODS: list[str] = [
         "GET",
