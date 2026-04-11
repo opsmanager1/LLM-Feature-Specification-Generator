@@ -8,7 +8,6 @@ from app.middlewares import configure_security_middlewares
 from app.modules.auth.router import router as auth_router
 from app.modules.llm.router import router as llm_router
 
-
 app = FastAPI(title=settings.APP_NAME, version=settings.VERSION, lifespan=lifespan)
 
 configure_security_middlewares(app)

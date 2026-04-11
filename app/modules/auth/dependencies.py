@@ -3,7 +3,8 @@ from collections.abc import Callable
 from fastapi import Depends, HTTPException, status
 
 from app.modules.auth.errors import PermissionDeniedError
-from app.modules.auth.infrastructure.fastapi_users_adapter import current_active_user
+from app.modules.auth.infrastructure.fastapi_users_adapter import \
+    current_active_user
 from app.modules.auth.models import User
 from app.modules.auth.service import AuthorizationService
 

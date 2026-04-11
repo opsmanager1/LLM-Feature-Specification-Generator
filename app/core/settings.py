@@ -31,9 +31,18 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = ["*"]
     SECURITY_TRUSTED_HOSTS: list[str] = ["*"]
     SECURITY_ENABLE_HTTPS_REDIRECT: bool = False
-    SECURITY_CSP: str = "default-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    SECURITY_CSP: str = (
+        "default-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    )
     SECURITY_REFERRER_POLICY: str = "strict-origin-when-cross-origin"
-    SECURITY_CORS_ALLOW_METHODS: list[str] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    SECURITY_CORS_ALLOW_METHODS: list[str] = [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "OPTIONS",
+    ]
     SECURITY_CORS_ALLOW_HEADERS: list[str] = [
         "Authorization",
         "Content-Type",
@@ -52,7 +61,9 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "mistral"
     OLLAMA_TIMEOUT: int = 120
-    OLLAMA_SYSTEM_PROMPT: str = "You are a helpful assistant that generates software specifications."
+    OLLAMA_SYSTEM_PROMPT: str = (
+        "You are a helpful assistant that generates software specifications."
+    )
     LLM_PREFIX: str = "/llm"
     LLM_GENERATE_PATH: str = "/generate"
     LLM_TAG: str = "llm"

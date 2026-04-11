@@ -2,7 +2,8 @@ from collections.abc import AsyncGenerator
 
 from fastapi import Depends
 from fastapi_users import BaseUserManager, FastAPIUsers, IntegerIDMixin
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
+from fastapi_users.authentication import (AuthenticationBackend,
+                                          BearerTransport, JWTStrategy)
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,7 +37,8 @@ bearer_transport = BearerTransport(
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(
         secret=settings.SECRET_KEY,
-        lifetime_seconds=settings.ACCESS_TOKEN_EXPIRE_MINUTES * settings.ACCESS_TOKEN_MINUTE_IN_SECONDS,
+        lifetime_seconds=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        * settings.ACCESS_TOKEN_MINUTE_IN_SECONDS,
     )
 
 

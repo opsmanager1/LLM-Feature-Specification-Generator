@@ -17,7 +17,9 @@ def test_health_returns_service_metadata(api_client: TestClient) -> None:
 
 
 @pytest.mark.unit
-def test_ready_returns_ready_when_db_check_passes(monkeypatch: pytest.MonkeyPatch, api_client: TestClient) -> None:
+def test_ready_returns_ready_when_db_check_passes(
+    monkeypatch: pytest.MonkeyPatch, api_client: TestClient
+) -> None:
     monkeypatch.setattr("app.api.health.check_database_ready", Mock(return_value=None))
 
     response = api_client.get("/ready")
@@ -27,8 +29,12 @@ def test_ready_returns_ready_when_db_check_passes(monkeypatch: pytest.MonkeyPatc
 
 
 @pytest.mark.unit
-def test_ready_returns_503_when_db_check_fails(monkeypatch: pytest.MonkeyPatch, api_client: TestClient) -> None:
-    monkeypatch.setattr("app.api.health.check_database_ready", Mock(side_effect=RuntimeError("db down")))
+def test_ready_returns_503_when_db_check_fails(
+    monkeypatch: pytest.MonkeyPatch, api_client: TestClient
+) -> None:
+    monkeypatch.setattr(
+        "app.api.health.check_database_ready", Mock(side_effect=RuntimeError("db down"))
+    )
 
     response = api_client.get("/ready")
 

@@ -14,7 +14,9 @@ def configure_security_middlewares(app: FastAPI) -> None:
     if settings.SECURITY_ENABLE_HTTPS_REDIRECT:
         app.add_middleware(HTTPSRedirectMiddleware)
 
-    app.add_middleware(RequestIDMiddleware, header_name=settings.SECURITY_REQUEST_ID_HEADER)
+    app.add_middleware(
+        RequestIDMiddleware, header_name=settings.SECURITY_REQUEST_ID_HEADER
+    )
 
     app.add_middleware(
         TrustedHostMiddleware,

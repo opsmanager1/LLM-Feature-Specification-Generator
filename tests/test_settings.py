@@ -11,7 +11,9 @@ load_dotenv()
 TEST_DB_HOST = os.getenv("TEST_DB_HOST", "localhost")
 TEST_DB_PORT = int(os.getenv("TEST_DB_PORT", "5432"))
 TEST_DB_USER = os.getenv("TEST_DB_USER", os.getenv("POSTGRES_USER", "postgres"))
-TEST_DB_PASSWORD = os.getenv("TEST_DB_PASSWORD", os.getenv("POSTGRES_PASSWORD", "postgres"))
+TEST_DB_PASSWORD = os.getenv(
+    "TEST_DB_PASSWORD", os.getenv("POSTGRES_PASSWORD", "postgres")
+)
 TEST_DB_NAME = os.getenv("TEST_DB_NAME", "postgres")
 TEST_DB_SSLMODE = os.getenv("TEST_DB_SSLMODE", "disable")
 
@@ -19,8 +21,9 @@ TEST_DB_SSLMODE = os.getenv("TEST_DB_SSLMODE", "disable")
 def _build_database_url() -> str:
     encoded_user = quote_plus(TEST_DB_USER)
     encoded_password = quote_plus(TEST_DB_PASSWORD)
+    host_port = f"{TEST_DB_HOST}:{TEST_DB_PORT}"
     return (
-        f"postgresql://{encoded_user}:{encoded_password}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
+        f"postgresql://{encoded_user}:{encoded_password}@{host_port}/{TEST_DB_NAME}"
         f"?sslmode={TEST_DB_SSLMODE}"
     )
 
@@ -32,6 +35,7 @@ def _resolve_test_database_url() -> str:
     if raw.startswith("postgres://"):
         return raw.replace("postgres://", "postgresql://", 1)
     return _build_database_url()
+
 
 TEST_DATABASE_URL = _resolve_test_database_url()
 

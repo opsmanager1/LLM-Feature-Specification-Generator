@@ -1,11 +1,11 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
-from collections.abc import AsyncGenerator, Generator
 import logging
+from collections.abc import AsyncGenerator, Generator
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.settings import settings
 
@@ -30,7 +30,15 @@ def _to_asyncpg_url(url: str) -> str:
         else:
             normalized_query.append((key, value))
 
-    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(normalized_query), parts.fragment))
+    return urlunsplit(
+        (
+            parts.scheme,
+            parts.netloc,
+            parts.path,
+            urlencode(normalized_query),
+            parts.fragment,
+        )
+    )
 
 
 class Base(DeclarativeBase):

@@ -1,5 +1,5 @@
-from typing import AsyncGenerator
 import logging
+from typing import AsyncGenerator
 
 import httpx
 

@@ -31,9 +31,11 @@ def configure_openapi_bearer_auth(app: FastAPI) -> None:
                     if not security:
                         continue
                     operation["security"] = [
-                        {"BearerAuth": item.get("OAuth2PasswordBearer", [])}
-                        if "OAuth2PasswordBearer" in item
-                        else item
+                        (
+                            {"BearerAuth": item.get("OAuth2PasswordBearer", [])}
+                            if "OAuth2PasswordBearer" in item
+                            else item
+                        )
                         for item in security
                     ]
 

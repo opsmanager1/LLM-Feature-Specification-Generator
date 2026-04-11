@@ -1,5 +1,5 @@
-import pytest
 import httpx
+import pytest
 
 from app.modules.llm.providers.ollama import OllamaClient
 
@@ -21,7 +21,9 @@ class FakeResponse:
 
 
 class FakeAsyncClient:
-    def __init__(self, response: FakeResponse | None = None, error: Exception | None = None):
+    def __init__(
+        self, response: FakeResponse | None = None, error: Exception | None = None
+    ):
         self._response = response
         self._error = error
         self.last_url = None
@@ -45,7 +47,9 @@ class FakeAsyncClient:
 @pytest.mark.asyncio
 async def test_generate_returns_content(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_client = FakeAsyncClient(
-        response=FakeResponse(json_data={"message": {"content": "Generated specification"}})
+        response=FakeResponse(
+            json_data={"message": {"content": "Generated specification"}}
+        )
     )
     monkeypatch.setattr(
         "app.modules.llm.providers.ollama.httpx.AsyncClient",
@@ -62,7 +66,9 @@ async def test_generate_returns_content(monkeypatch: pytest.MonkeyPatch) -> None
 
 @pytest.mark.unit
 @pytest.mark.asyncio
-async def test_generate_maps_timeout_to_runtime_error(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_generate_maps_timeout_to_runtime_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     fake_client = FakeAsyncClient(error=httpx.TimeoutException("timeout"))
     monkeypatch.setattr(
         "app.modules.llm.providers.ollama.httpx.AsyncClient",
@@ -80,7 +86,9 @@ async def test_generate_maps_timeout_to_runtime_error(monkeypatch: pytest.Monkey
 async def test_generate_maps_http_status_error_to_runtime_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    fake_client = FakeAsyncClient(response=FakeResponse(status_code=500, text="internal error"))
+    fake_client = FakeAsyncClient(
+        response=FakeResponse(status_code=500, text="internal error")
+    )
     monkeypatch.setattr(
         "app.modules.llm.providers.ollama.httpx.AsyncClient",
         lambda *args, **kwargs: fake_client,

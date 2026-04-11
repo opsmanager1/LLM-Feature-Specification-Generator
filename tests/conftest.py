@@ -18,9 +18,6 @@ from tests.test_settings import (
 
 apply_test_environment()
 
-from app.core.database import Base
-from app.modules.auth.models import User
-
 
 @pytest.fixture(scope="session")
 def test_database_url() -> str:
@@ -29,6 +26,8 @@ def test_database_url() -> str:
 
 @pytest.fixture(scope="session")
 def test_engine(test_database_url: str):
+    from app.core.database import Base
+
     engine = create_engine(test_database_url, pool_pre_ping=True)
     try:
         with engine.connect() as connection:
@@ -51,7 +50,9 @@ def test_engine(test_database_url: str):
 def db_session(test_engine) -> Generator[Session, None, None]:
     connection = test_engine.connect()
     transaction = connection.begin()
-    testing_session_local = sessionmaker(autocommit=False, autoflush=False, bind=connection)
+    testing_session_local = sessionmaker(
+        autocommit=False, autoflush=False, bind=connection
+    )
     db = testing_session_local()
     try:
         yield db
@@ -62,7 +63,9 @@ def db_session(test_engine) -> Generator[Session, None, None]:
 
 
 @pytest.fixture
-def seed_default_user(db_session: Session) -> User:
+def seed_default_user(db_session: Session):
+    from app.modules.auth.models import User
+
     default_user_payload = make_db_user_payload(
         username=TEST_DEFAULT_USERNAME,
         email=TEST_DEFAULT_EMAIL,
@@ -70,7 +73,11 @@ def seed_default_user(db_session: Session) -> User:
         is_superuser=True,
     )
 
-    user = db_session.query(User).filter(User.email == default_user_payload["email"]).one_or_none()
+    user = (
+        db_session.query(User)
+        .filter(User.email == default_user_payload["email"])
+        .one_or_none()
+    )
     if user is None:
         user = User(**default_user_payload)
         db_session.add(user)

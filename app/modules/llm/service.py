@@ -1,6 +1,7 @@
-from app.modules.llm.parser import extract_json, extract_sections, normalize_whitespace, strip_markdown
-from app.modules.llm.schemas import LlmGenerateRequest, LlmGenerateResponse
+from app.modules.llm.parser import (extract_json, extract_sections,
+                                    normalize_whitespace, strip_markdown)
 from app.modules.llm.providers.ollama import ollama_client
+from app.modules.llm.schemas import LlmGenerateRequest, LlmGenerateResponse
 
 
 async def generate_completion(payload: LlmGenerateRequest) -> LlmGenerateResponse:

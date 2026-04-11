@@ -1,5 +1,6 @@
 from app.core.settings import settings
-from app.modules.auth.infrastructure.fastapi_users_adapter import bearer_transport, get_jwt_strategy
+from app.modules.auth.infrastructure.fastapi_users_adapter import (
+    bearer_transport, get_jwt_strategy)
 
 
 def test_bearer_transport_token_url_matches_settings() -> None:
@@ -15,5 +16,6 @@ def test_get_jwt_strategy_uses_settings_secret_and_lifetime() -> None:
     assert strategy.secret == settings.SECRET_KEY
     assert (
         strategy.lifetime_seconds
-        == settings.ACCESS_TOKEN_EXPIRE_MINUTES * settings.ACCESS_TOKEN_MINUTE_IN_SECONDS
+        == settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        * settings.ACCESS_TOKEN_MINUTE_IN_SECONDS
     )

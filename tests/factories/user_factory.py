@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from tests.test_settings import (
-    TEST_DEFAULT_EMAIL,
-    TEST_DEFAULT_HASHED_PASSWORD,
-    TEST_DEFAULT_USERNAME,
-)
+from tests.test_settings import (TEST_DEFAULT_EMAIL,
+                                 TEST_DEFAULT_HASHED_PASSWORD,
+                                 TEST_DEFAULT_USERNAME)
 
 
 @dataclass

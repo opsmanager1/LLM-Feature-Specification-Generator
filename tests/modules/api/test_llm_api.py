@@ -5,7 +5,9 @@ from fastapi.testclient import TestClient
 
 
 @pytest.mark.unit
-def test_generate_returns_service_result(monkeypatch: pytest.MonkeyPatch, api_client: TestClient) -> None:
+def test_generate_returns_service_result(
+    monkeypatch: pytest.MonkeyPatch, api_client: TestClient
+) -> None:
     mocked_generate = AsyncMock(
         return_value={
             "raw_content": "# Spec",
@@ -26,7 +28,9 @@ def test_generate_returns_service_result(monkeypatch: pytest.MonkeyPatch, api_cl
 
 
 @pytest.mark.unit
-def test_generate_maps_value_error_to_502(monkeypatch: pytest.MonkeyPatch, api_client: TestClient) -> None:
+def test_generate_maps_value_error_to_502(
+    monkeypatch: pytest.MonkeyPatch, api_client: TestClient
+) -> None:
     monkeypatch.setattr(
         "app.modules.llm.router.generate_completion",
         AsyncMock(side_effect=ValueError("invalid provider response")),
@@ -42,7 +46,9 @@ def test_generate_maps_value_error_to_502(monkeypatch: pytest.MonkeyPatch, api_c
 
 
 @pytest.mark.unit
-def test_generate_maps_runtime_error_to_502(monkeypatch: pytest.MonkeyPatch, api_client: TestClient) -> None:
+def test_generate_maps_runtime_error_to_502(
+    monkeypatch: pytest.MonkeyPatch, api_client: TestClient
+) -> None:
     monkeypatch.setattr(
         "app.modules.llm.router.generate_completion",
         AsyncMock(side_effect=RuntimeError("provider timeout")),

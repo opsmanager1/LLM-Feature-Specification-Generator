@@ -26,7 +26,8 @@ class SecurityLoggingMiddleware:
                     duration_ms = int((time.time() - started_at) * 1000)
                     ip = request.client.host if request.client else "unknown"
                     logger.warning(
-                        "security_event status=%s method=%s path=%s ip=%s request_id=%s ua=%s duration_ms=%s",
+                        "security_event status=%s method=%s path=%s ip=%s "
+                        "request_id=%s ua=%s duration_ms=%s",
                         status_code,
                         request.method,
                         request.url.path,

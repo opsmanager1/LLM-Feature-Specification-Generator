@@ -8,8 +8,7 @@ from app.modules.auth.models import User
 
 
 class UserRepositoryPort(Protocol):
-    async def get_by_email(self, email: str) -> User | None:
-        ...
+    async def get_by_email(self, email: str) -> User | None: ...
 
 
 class FastApiUsersUserRepository(UserRepositoryPort):

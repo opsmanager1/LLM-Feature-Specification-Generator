@@ -43,7 +43,9 @@ class InMemoryRateLimitMiddleware:
             return
 
         rate_limit_paths = settings.SECURITY_RATE_LIMIT_PATHS
-        if rate_limit_paths and not any(path.startswith(prefix) for prefix in rate_limit_paths):
+        if rate_limit_paths and not any(
+            path.startswith(prefix) for prefix in rate_limit_paths
+        ):
             await self.app(scope, receive, send)
             return
 
@@ -53,7 +55,9 @@ class InMemoryRateLimitMiddleware:
 
         if self._is_limited(ip, now):
             request_id = scope.get("request_id", "")
-            logger.warning("rate_limit_exceeded ip=%s path=%s request_id=%s", ip, path, request_id)
+            logger.warning(
+                "rate_limit_exceeded ip=%s path=%s request_id=%s", ip, path, request_id
+            )
             response = PlainTextResponse("Too Many Requests", status_code=429)
             await response(scope, receive, send)
             return

@@ -14,7 +14,9 @@ def _resolve_bootstrap_hashed_password() -> str:
     if settings.AUTH_PASSWORD_HASH:
         return settings.AUTH_PASSWORD_HASH
     if not settings.AUTH_PASSWORD:
-        raise RuntimeError("AUTH_PASSWORD must be set when AUTH_PASSWORD_HASH is not provided")
+        raise RuntimeError(
+            "AUTH_PASSWORD must be set when AUTH_PASSWORD_HASH is not provided"
+        )
     return helper.hash(settings.AUTH_PASSWORD)
 
 
@@ -30,9 +32,13 @@ def bootstrap_auth(db: Session) -> None:
         return
 
     if not settings.AUTH_EMAIL or not settings.AUTH_USERNAME:
-        raise RuntimeError("AUTH_EMAIL and AUTH_USERNAME must be set when bootstrap is enabled")
+        raise RuntimeError(
+            "AUTH_EMAIL and AUTH_USERNAME must be set when bootstrap is enabled"
+        )
 
-    existing_user = db.query(User).filter(User.email == settings.AUTH_EMAIL).one_or_none()
+    existing_user = (
+        db.query(User).filter(User.email == settings.AUTH_EMAIL).one_or_none()
+    )
     if existing_user is not None:
         try:
             if not existing_user.hashed_password:

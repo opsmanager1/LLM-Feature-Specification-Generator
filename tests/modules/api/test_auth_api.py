@@ -6,7 +6,9 @@ from app.main import app
 
 def _get_auth_me_dependency_callable():
     for route in app.routes:
-        if getattr(route, "path", None) == "/api/v1/auth/users/me" and "GET" in getattr(route, "methods", set()):
+        if getattr(route, "path", None) == "/api/v1/auth/users/me" and "GET" in getattr(
+            route, "methods", set()
+        ):
             dependant = getattr(route, "dependant", None)
             if dependant and dependant.dependencies:
                 return dependant.dependencies[0].call
@@ -47,7 +49,9 @@ def test_auth_me_returns_mocked_current_user(api_client: TestClient) -> None:
 
 @pytest.mark.unit
 def test_register_validates_required_fields(api_client: TestClient) -> None:
-    response = api_client.post("/api/v1/auth/register", json={"email": "user@example.com"})
+    response = api_client.post(
+        "/api/v1/auth/register", json={"email": "user@example.com"}
+    )
 
     assert response.status_code == 422
 

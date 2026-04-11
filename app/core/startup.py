@@ -1,6 +1,6 @@
+import logging
 from collections.abc import Generator
 from contextlib import asynccontextmanager, contextmanager
-import logging
 
 from fastapi import FastAPI
 from sqlalchemy.orm import Session

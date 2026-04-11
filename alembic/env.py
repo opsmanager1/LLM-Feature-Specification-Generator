@@ -1,12 +1,15 @@
-from logging.config import fileConfig
 import logging
+from logging.config import fileConfig
+
+from sqlalchemy import engine_from_config, pool, text
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool, text
+from importlib import import_module
 
 from app.core.database import Base, _normalize_database_url
 from app.core.settings import settings
-from app.modules.auth.models import User
+
+import_module("app.modules.auth.models")
 
 config = context.config
 logger = logging.getLogger("alembic.runtime.migration")
@@ -42,7 +45,9 @@ def _ensure_version_num_capacity(connection) -> None:
             result,
         )
         connection.execute(
-            text("ALTER TABLE alembic_version ALTER COLUMN version_num TYPE VARCHAR(255)")
+            text(
+                "ALTER TABLE alembic_version ALTER COLUMN version_num TYPE VARCHAR(255)"
+            )
         )
 
 

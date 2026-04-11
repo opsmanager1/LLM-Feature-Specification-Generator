@@ -13,21 +13,27 @@ def test_ensure_superuser_allows_superuser(admin_user: UserStub) -> None:
     assert service.ensure_superuser(admin_user) is admin_user
 
 
-def test_ensure_superuser_denies_non_superuser(user_factory: Callable[..., UserStub]) -> None:
+def test_ensure_superuser_denies_non_superuser(
+    user_factory: Callable[..., UserStub]
+) -> None:
     service = AuthorizationService()
 
     with pytest.raises(PermissionDeniedError, match="Not enough permissions"):
         service.ensure_superuser(user_factory(is_superuser=False))
 
 
-def test_ensure_groups_allows_when_group_matches(user_factory: Callable[..., UserStub]) -> None:
+def test_ensure_groups_allows_when_group_matches(
+    user_factory: Callable[..., UserStub]
+) -> None:
     service = AuthorizationService()
     user = user_factory(groups=["editors", "reviewers"])
 
     assert service.ensure_groups(user, {"admins", "editors"}) is user
 
 
-def test_ensure_groups_denies_when_no_groups_match(user_factory: Callable[..., UserStub]) -> None:
+def test_ensure_groups_denies_when_no_groups_match(
+    user_factory: Callable[..., UserStub]
+) -> None:
     service = AuthorizationService()
     user = user_factory(groups=["guests"])
 
