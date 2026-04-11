@@ -141,6 +141,11 @@ Base API prefix: /api/v1
 - PATCH /api/v1/auth/users/{id}
 - DELETE /api/v1/auth/users/{id}
 
+Login note:
+
+- Endpoint `/api/v1/auth/jwt/login` uses `application/x-www-form-urlencoded`.
+- In form field `username`, pass only `AUTH_USERNAME`.
+
 ### LLM
 
 - POST /api/v1/llm/generate

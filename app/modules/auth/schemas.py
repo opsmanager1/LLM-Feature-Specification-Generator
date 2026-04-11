@@ -1,15 +1,13 @@
 
 from fastapi_users import schemas
-from pydantic import Field, BaseModel, EmailStr
+from pydantic import Field
 
 
 class UserRead(schemas.BaseUser[int]):
     username: str
 
 
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
+class UserCreate(schemas.BaseUserCreate):
     username: str = Field(min_length=3, max_length=100)
 
 
