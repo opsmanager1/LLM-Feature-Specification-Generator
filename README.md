@@ -133,6 +133,7 @@ Base API prefix: /api/v1
 ### Auth (fastapi-users)
 
 - POST /api/v1/auth/jwt/login
+- POST /api/v1/auth/jwt/refresh
 - POST /api/v1/auth/jwt/logout
 - POST /api/v1/auth/register
 - GET /api/v1/auth/users/me
@@ -145,6 +146,9 @@ Login note:
 
 - Endpoint `/api/v1/auth/jwt/login` uses `application/x-www-form-urlencoded`.
 - In form field `username`, pass only `AUTH_USERNAME`.
+- Login response returns `access_token` in body and sets HttpOnly refresh cookie.
+- Use `/api/v1/auth/jwt/refresh` to get a new access token and refresh cookie.
+- `/api/v1/auth/jwt/logout` clears refresh cookie on client side.
 
 ### LLM
 

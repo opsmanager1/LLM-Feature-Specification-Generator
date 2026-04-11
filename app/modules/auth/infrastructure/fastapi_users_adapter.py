@@ -67,6 +67,13 @@ def get_jwt_strategy() -> JWTStrategy:
     )
 
 
+def get_refresh_jwt_strategy() -> JWTStrategy:
+    return JWTStrategy(
+        secret=settings.SECRET_KEY,
+        lifetime_seconds=settings.AUTH_REFRESH_TOKEN_EXPIRE_SECONDS,
+    )
+
+
 auth_backend = AuthenticationBackend(
     name="jwt",
     transport=bearer_transport,

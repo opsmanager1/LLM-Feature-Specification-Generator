@@ -27,6 +27,16 @@ class Settings(BaseSettings):
     AUTH_EMAIL: str | None = None
     AUTH_PASSWORD: str | None = None
     AUTH_PASSWORD_HASH: str | None = None
+    AUTH_USERNAME_MIN_LENGTH: int = 3
+    AUTH_USERNAME_MAX_LENGTH: int = 100
+    AUTH_HASHED_PASSWORD_MAX_LENGTH: int = 1024
+    AUTH_REFRESH_TOKEN_HASH_LENGTH: int = 128
+    AUTH_DAY_IN_SECONDS: int = 24 * 60 * 60
+    AUTH_REFRESH_TOKEN_EXPIRE_DAYS: int = 14
+    AUTH_REFRESH_TOKEN_EXPIRE_SECONDS: int = 14 * 24 * 60 * 60
+    AUTH_REFRESH_COOKIE_NAME: str = "refresh_token"
+    AUTH_REFRESH_COOKIE_SECURE: bool = True
+    AUTH_REFRESH_COOKIE_SAMESITE: str = "lax"
 
     ALLOWED_ORIGINS: list[str] = ["*"]
     SECURITY_TRUSTED_HOSTS: list[str] = ["*"]
