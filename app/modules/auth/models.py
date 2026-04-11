@@ -44,6 +44,7 @@ class RefreshToken(Base):
     )
     token_hash: Mapped[str] = mapped_column(
         String(settings.AUTH_REFRESH_TOKEN_HASH_LENGTH),
+        index=True,
         unique=True,
         nullable=False,
     )
