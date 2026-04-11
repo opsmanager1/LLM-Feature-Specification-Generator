@@ -12,10 +12,17 @@ from app.middlewares.security.request_id import RequestIDMiddleware
 
 
 def configure_security_middlewares(app: FastAPI) -> None:
-        app.add_middleware(
-            SecurityMiddleware,
-            content_security_policy="default-src 'self'; style-src 'self' https://cdn.jsdelivr.net; script-src 'self' https://cdn.jsdelivr.net; img-src 'self' https://fastapi.tiangolo.com",
-        )
+
+    app.add_middleware(
+        SecurityMiddleware,
+        content_security_policy=(
+            "default-src 'self'; "
+            "style-src 'self' https://cdn.jsdelivr.net; "
+            "script-src 'self' https://cdn.jsdelivr.net; "
+            "img-src 'self' https://fastapi.tiangolo.com"
+        ),
+    )
+
     if settings.SECURITY_ENABLE_HTTPS_REDIRECT:
         app.add_middleware(HTTPSRedirectMiddleware)
 
