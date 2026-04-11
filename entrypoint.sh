@@ -1,14 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-echo "[start] Running Alembic migrations..."
-python -m alembic upgrade head
-
-echo "[start] Checking Alembic schema sync..."
-python -m alembic check || {
-	echo "[error] Alembic schema is out of sync! Create and commit migrations before deploy." >&2
-	exit 1
-}
+echo "[start] Running migrations and schema sync check..."
+python -m app.scripts.migrate_and_check
 
 echo "[start] Running admin bootstrap script..."
 python -m app.scripts.bootstrap_admin
