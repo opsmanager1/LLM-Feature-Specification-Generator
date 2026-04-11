@@ -7,25 +7,18 @@ import sys
 logger = logging.getLogger(__name__)
 
 
-def _normalize_database_url(url: str) -> str:
-    if url.startswith("postgres://"):
-        return url.replace("postgres://", "postgresql://", 1)
-    return url
-
-
 def _project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
 def _run_alembic(*args: str) -> str:
     command = [sys.executable, "-m", "alembic", *args]
-    result = subprocess.run(
-        command,
-        cwd=_project_root(),
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    result = subprocess.run(command, cwd=_project_root(), capture_output=True, text=True)
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        stdout = (result.stdout or "").strip()
+        details = stderr or stdout or "unknown error"
+        raise RuntimeError(f"Alembic command failed: {' '.join(args)}; {details}")
     return result.stdout
 
 
@@ -44,6 +37,9 @@ def migrate_and_check() -> None:
 
     current_heads = _extract_revisions(_run_alembic("current"))
     expected_heads = _extract_revisions(_run_alembic("heads"))
+
+    if not current_heads:
+        raise RuntimeError("No migration state found in DB after alembic upgrade")
 
     if current_heads != expected_heads:
         raise RuntimeError(
