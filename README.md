@@ -109,7 +109,7 @@ docker compose up --build
 Notes:
 
 - Container entrypoint automatically runs:
-  - alembic upgrade head
+  - migration + DB head check (`python -m app.scripts.migrate_and_check`)
   - admin bootstrap script
   - uvicorn app startup
 
@@ -118,7 +118,7 @@ Notes:
 When server is running:
 
 - Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- ReDoc: http://localhost:8000/redoc (pinned ReDoc 2.x script)
 - OpenAPI JSON: http://localhost:8000/openapi.json
 
 ## API Endpoints
@@ -149,6 +149,7 @@ Login note:
 - Login response returns `access_token` in body and sets HttpOnly refresh cookie.
 - Use `/api/v1/auth/jwt/refresh` to get a new access token and refresh cookie.
 - `/api/v1/auth/jwt/logout` clears refresh cookie on client side.
+- Swagger `Authorize` value must contain only raw JWT token (without `Bearer ` prefix).
 
 ### LLM
 
