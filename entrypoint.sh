@@ -5,7 +5,7 @@ echo "[start] Running Alembic migrations..."
 python -m alembic upgrade head
 
 echo "[start] Checking Alembic schema sync..."
-python -m alembic revision --autogenerate --check || {
+python -m alembic check || {
 	echo "[error] Alembic schema is out of sync! Create and commit migrations before deploy." >&2
 	exit 1
 }
