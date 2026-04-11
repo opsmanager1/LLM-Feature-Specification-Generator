@@ -11,11 +11,9 @@ logger = logging.getLogger(__name__)
 
 def _resolve_bootstrap_hashed_password() -> str:
     helper = PasswordHelper()
-    if settings.AUTH_PASSWORD_HASH:
-        return settings.AUTH_PASSWORD_HASH
     if not settings.AUTH_PASSWORD:
         raise RuntimeError(
-            "AUTH_PASSWORD must be set when AUTH_PASSWORD_HASH is not provided"
+            "AUTH_PASSWORD must be set for admin bootstrap user creation"
         )
     return helper.hash(settings.AUTH_PASSWORD)
 
