@@ -1,13 +1,8 @@
-from pathlib import Path
 import logging
-
-from alembic import command
-from alembic.config import Config
-from alembic.runtime.migration import MigrationContext
-from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine
-
-from app.core.settings import settings
+from pathlib import Path
+import re
+import subprocess
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -22,34 +17,33 @@ def _project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def _build_alembic_config() -> Config:
-    config = Config(str(_project_root() / "alembic.ini"))
-    config.set_main_option(
-        "sqlalchemy.url", _normalize_database_url(settings.DATABASE_URL)
+def _run_alembic(*args: str) -> str:
+    command = [sys.executable, "-m", "alembic", *args]
+    result = subprocess.run(
+        command,
+        cwd=_project_root(),
+        check=True,
+        capture_output=True,
+        text=True,
     )
-    return config
+    return result.stdout
+
+
+def _extract_revisions(raw_output: str) -> set[str]:
+    revisions: set[str] = set()
+    for line in raw_output.splitlines():
+        match = re.match(r"^([0-9a-f]+)\b", line.strip())
+        if match:
+            revisions.add(match.group(1))
+    return revisions
 
 
 def migrate_and_check() -> None:
-    config = _build_alembic_config()
-
     logger.info("Running Alembic upgrade to head")
-    command.upgrade(config, "head")
+    _run_alembic("upgrade", "head")
 
-    script = ScriptDirectory.from_config(config)
-    expected_heads = set(script.get_heads())
-
-    engine = create_engine(
-        _normalize_database_url(settings.DATABASE_URL),
-        pool_pre_ping=True,
-    )
-
-    try:
-        with engine.connect() as connection:
-            context = MigrationContext.configure(connection)
-            current_heads = set(context.get_current_heads())
-    finally:
-        engine.dispose()
+    current_heads = _extract_revisions(_run_alembic("current"))
+    expected_heads = _extract_revisions(_run_alembic("heads"))
 
     if current_heads != expected_heads:
         raise RuntimeError(
