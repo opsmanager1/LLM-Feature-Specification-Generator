@@ -60,8 +60,7 @@ Production-ready FastAPI backend for authentication, LLM-powered specification g
 
 - Python 3.10+
 - PostgreSQL database
-- Optional: Docker + Docker Compose
-- Optional: local Ollama instance for LLM generation
+- Optional: Docker + Docker Compose (recommended for VPS)
 
 ### 1) Configure environment
 
@@ -83,6 +82,10 @@ LLM values:
 - OLLAMA_BASE_URL
 - OLLAMA_MODEL
 
+For Docker Compose in this project use:
+
+- OLLAMA_BASE_URL=http://ollama:11434
+
 ### 2A) Run locally
 
 ```bash
@@ -97,21 +100,35 @@ pip install -r requirements.txt
 
 python -m alembic upgrade head
 python -m app.scripts.bootstrap_admin
+python -m app.scripts.bootstrap_prompt_template
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### 2B) Run with Docker
 
 ```bash
-docker compose up --build
+docker compose up -d --build
+docker exec -it specification-generator-ollama ollama pull mistral
 ```
 
 Notes:
 
 - Container entrypoint automatically runs:
   - migration + DB head check (`python -m app.scripts.migrate_and_check`)
-  - admin bootstrap script
+  - admin bootstrap script (`python -m app.scripts.bootstrap_admin`)
+  - prompt template bootstrap script (`python -m app.scripts.bootstrap_prompt_template`)
   - uvicorn app startup
+- FastAPI container reaches Ollama via internal Docker network URL: http://ollama:11434
+
+Verify Ollama API:
+
+```bash
+curl http://localhost:11434/api/generate -d '{
+  "model": "mistral",
+  "prompt": "hello",
+  "stream": false
+}'
+```
 
 ## API Docs
 
@@ -208,3 +225,4 @@ If LLM requests fail:
 
 - Verify OLLAMA_BASE_URL
 - Ensure Ollama is running and model is available
+- For Docker deployment, ensure OLLAMA_BASE_URL is http://ollama:11434

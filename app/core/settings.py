@@ -69,12 +69,17 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "mistral"
     OLLAMA_TIMEOUT: int = 120
+    OLLAMA_CONNECT_TIMEOUT: int = 10
+    OLLAMA_MAX_RETRIES: int = 2
+    OLLAMA_RETRY_BACKOFF_SECONDS: float = 1.0
     OLLAMA_SYSTEM_PROMPT: str = (
         "You are a helpful assistant that generates software specifications."
     )
     LLM_PREFIX: str = "/llm"
     LLM_GENERATE_PATH: str = "/generate"
     LLM_TAG: str = "llm"
+    LLM_PROMPT_MAX_LENGTH: int = 8000
+    FEATURE_SPEC_HISTORY_DEFAULT_LIMIT: int = 10
 
     model_config = SettingsConfigDict(
         env_file=".env",

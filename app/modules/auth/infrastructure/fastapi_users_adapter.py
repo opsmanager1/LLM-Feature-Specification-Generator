@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from typing import Any
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -40,6 +41,13 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
             await self.user_db.update(user, {"hashed_password": updated_password_hash})
 
         return user
+
+    async def create(self, user_create: Any, safe: bool = False, request: Any = None):
+        if safe:
+            user_create = user_create.model_copy(
+                update={"is_superuser": False, "is_verified": False}
+            )
+        return await super().create(user_create, safe=safe, request=request)
 
 
 async def get_user_db(
