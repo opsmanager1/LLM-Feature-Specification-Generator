@@ -31,7 +31,26 @@ def _extract_revisions(raw_output: str) -> set[str]:
     return revisions
 
 
+def _has_migration_files() -> bool:
+    versions_dir = _project_root() / "alembic" / "versions"
+    return any(versions_dir.glob("*.py"))
+
+
+def _bootstrap_schema_without_migrations() -> None:
+    from app.core.database import Base, engine
+
+    logger.warning(
+        "No Alembic migration files found; creating schema via SQLAlchemy metadata"
+    )
+    Base.metadata.create_all(bind=engine)
+    logger.info("Schema created via SQLAlchemy metadata")
+
+
 def migrate_and_check() -> None:
+    if not _has_migration_files():
+        _bootstrap_schema_without_migrations()
+        return
+
     logger.info("Running Alembic upgrade to head")
     _run_alembic("upgrade", "head")
 
