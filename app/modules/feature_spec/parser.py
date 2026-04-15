@@ -3,10 +3,17 @@ import re
 
 
 def extract_json(text: str) -> dict | list:
-    match = re.search(r"(\{.*\}|\[.*\])", text, re.DOTALL)
-    if not match:
-        raise ValueError("No JSON found in LLM response")
-    return json.loads(match.group(1))
+    decoder = json.JSONDecoder()
+    for index, char in enumerate(text):
+        if char not in "[{":
+            continue
+        try:
+            parsed, _ = decoder.raw_decode(text[index:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, (dict, list)):
+            return parsed
+    raise ValueError("No JSON found in LLM response")
 
 
 def strip_markdown(text: str) -> str:

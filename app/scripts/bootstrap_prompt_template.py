@@ -92,18 +92,42 @@ databases, edge cases, and scalability.
 
 Feature idea:
 {feature_idea}
+
+---
+
+Return format requirements (strict):
+- Return ONLY valid JSON.
+- Do not include markdown, code fences, or any text before/after JSON.
+- JSON object must match this structure exactly:
+{
+    "user_stories": [
+        {
+            "title": "string",
+            "as_a": "string",
+            "i_want": "string",
+            "so_that": "string"
+        }
+    ],
+    "acceptance_criteria": ["string"],
+    "db_models_and_api_endpoints": {
+        "db_models": ["string"],
+        "api_endpoints": ["string"]
+    },
+    "risk_assessment": ["string"]
+}
 """
 
 
 def bootstrap_prompt_template(db) -> None:
     existing_template = db.get(PromptTemplate, 1)
+    default_template = DEFAULT_FEATURE_SUMMARY_PROMPT_TEMPLATE
 
     if existing_template is None:
         try:
             db.add(
                 PromptTemplate(
                     id=1,
-                    feature_to_feature_summary=DEFAULT_FEATURE_SUMMARY_PROMPT_TEMPLATE,
+                    feature_to_feature_summary=default_template,
                     is_active=True,
                 )
             )
@@ -115,13 +139,12 @@ def bootstrap_prompt_template(db) -> None:
             raise
         return
 
-    if existing_template.feature_to_feature_summary.strip():
+    existing_value = existing_template.feature_to_feature_summary.strip()
+    if existing_value:
         return
 
     try:
-        existing_template.feature_to_feature_summary = (
-            DEFAULT_FEATURE_SUMMARY_PROMPT_TEMPLATE
-        )
+        existing_template.feature_to_feature_summary = default_template
         db.add(existing_template)
         db.commit()
         logger.info("Filled empty feature summary prompt template with default value")

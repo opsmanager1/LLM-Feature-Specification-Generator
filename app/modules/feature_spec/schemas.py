@@ -25,17 +25,44 @@ class FeatureSummaryItem(BaseModel):
     so_that: str
 
 
+class DbModelsAndApiEndpoints(BaseModel):
+    db_models: list[str]
+    api_endpoints: list[str]
+
+
 class FeatureSummaryResult(BaseModel):
-    feature_summary: str
-    feature_summary_items: list[FeatureSummaryItem]
+    user_stories: list[FeatureSummaryItem]
+    acceptance_criteria: list[str]
+    db_models_and_api_endpoints: DbModelsAndApiEndpoints
+    risk_assessment: list[str]
 
     @model_validator(mode="before")
     @classmethod
     def normalize_legacy_user_stories(cls, data):
-        if isinstance(data, dict) and "feature_summary_items" not in data:
-            if "user_stories" in data:
-                data = {**data, "feature_summary_items": data["user_stories"]}
-        return data
+        if not isinstance(data, dict):
+            return data
+
+        normalized = dict(data)
+
+        if "user_stories" not in normalized and "feature_summary_items" in normalized:
+            normalized["user_stories"] = normalized["feature_summary_items"]
+
+        if "acceptance_criteria" not in normalized:
+            if "acceptance" in normalized:
+                normalized["acceptance_criteria"] = normalized["acceptance"]
+
+        if "db_models_and_api_endpoints" not in normalized:
+            db_models = normalized.get("db_models", [])
+            api_endpoints = normalized.get("api_endpoints", [])
+            normalized["db_models_and_api_endpoints"] = {
+                "db_models": db_models,
+                "api_endpoints": api_endpoints,
+            }
+
+        if "risk_assessment" not in normalized and "risks" in normalized:
+            normalized["risk_assessment"] = normalized["risks"]
+
+        return normalized
 
 
 class FeatureSpecGenerateResponse(BaseModel):
