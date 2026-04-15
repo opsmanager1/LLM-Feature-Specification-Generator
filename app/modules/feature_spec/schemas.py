@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -26,8 +26,8 @@ class FeatureSummaryItem(BaseModel):
 
 
 class DbModelsAndApiEndpoints(BaseModel):
-    db_models: list[str]
-    api_endpoints: list[str]
+    db_models: list[str | dict[str, Any]]
+    api_endpoints: list[str | dict[str, Any]]
 
 
 class FeatureSummaryResult(BaseModel):
