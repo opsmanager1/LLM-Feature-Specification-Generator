@@ -10,16 +10,9 @@ from app.modules.feature_spec.parser import extract_json, normalize_whitespace, 
 def build_feature_summary_prompt_from_template(template: str, feature_idea: str) -> str:
     safe_template = template.strip()
     escaped_feature_idea = html.escape(feature_idea.strip(), quote=True)
-    try:
-        return safe_template.format(
-            feature_idea=escaped_feature_idea,
-            input=escaped_feature_idea,
-        )
-    except KeyError as exc:
-        missing_key = exc.args[0] if exc.args else "unknown"
-        raise ValueError(
-            f"Prompt template error: missing placeholder '{missing_key}'"
-        ) from exc
+    rendered = safe_template.replace("{feature_idea}", escaped_feature_idea)
+    rendered = rendered.replace("{input}", escaped_feature_idea)
+    return rendered
 
 
 def load_feature_summary_template(db: Session) -> str:
