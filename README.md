@@ -108,7 +108,6 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 ```bash
 docker compose up -d --build
-docker exec -it specification-generator-ollama ollama pull mistral
 ```
 
 Notes:
@@ -117,7 +116,9 @@ Notes:
   - migration + DB head check (`python -m app.scripts.migrate_and_check`)
   - admin bootstrap script (`python -m app.scripts.bootstrap_admin`)
   - prompt template bootstrap script (`python -m app.scripts.bootstrap_prompt_template`)
+  - Ollama model bootstrap (`python -m app.scripts.ensure_ollama_model`)
   - uvicorn app startup
+- On first deploy, startup may take longer while the configured `OLLAMA_MODEL` is downloaded.
 - FastAPI container reaches Ollama via internal Docker network URL: http://ollama:11434
 
 Verify Ollama API:
