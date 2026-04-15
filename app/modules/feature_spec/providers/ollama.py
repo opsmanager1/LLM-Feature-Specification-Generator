@@ -25,7 +25,12 @@ class OllamaClient:
         if self._system_prompt.strip():
             messages.append({"role": "system", "content": self._system_prompt})
         messages.append({"role": "user", "content": user_prompt})
-        return {"model": self._model, "stream": stream, "messages": messages}
+        return {
+            "model": self._model,
+            "stream": stream,
+            "format": "json",
+            "messages": messages,
+        }
 
     def _http_timeout(self) -> httpx.Timeout:
         return httpx.Timeout(float(self._timeout), connect=float(self._connect_timeout))
