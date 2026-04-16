@@ -29,6 +29,9 @@ python-dotenv==1.0.1
 # HTTP requests
 httpx==0.27.0
 
+# Background processing
+celery[redis]==5.4.0
+
 # Admin panel
 sqladmin==0.17.0
 itsdangerous==2.2.0

@@ -70,6 +70,18 @@ class FeatureSpecGenerateResponse(BaseModel):
     feature_summary: FeatureSummaryResult
 
 
+class FeatureSpecTaskSubmitResponse(BaseModel):
+    task_id: str
+    status: Literal["processing"]
+
+
+class FeatureSpecTaskStatusResponse(BaseModel):
+    task_id: str
+    status: Literal["PENDING", "STARTED", "SUCCESS", "FAILURE"]
+    result: dict[str, Any] | None = None
+    error: str | None = None
+
+
 class FeatureSpecHistoryItem(BaseModel):
     id: int
     feature_idea: str
