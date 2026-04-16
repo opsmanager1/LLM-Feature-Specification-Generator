@@ -68,7 +68,7 @@ class Settings(BaseSettings):
 
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "mistral"
-    OLLAMA_TIMEOUT: int = 120
+    OLLAMA_TIMEOUT: int = 180
     OLLAMA_CONNECT_TIMEOUT: int = 10
     OLLAMA_MAX_RETRIES: int = 2
     OLLAMA_RETRY_BACKOFF_SECONDS: float = 1.0

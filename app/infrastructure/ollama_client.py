@@ -29,7 +29,7 @@ class OllamaSyncClient:
         url = f"{self._base_url}/api/chat"
         payload = self._build_payload(user_prompt)
         with httpx.Client(timeout=self._timeout) as client:
-            response = client.post(url, json=payload)
+            response = client.post(url, json=payload, timeout=self._timeout)
             response.raise_for_status()
             data = response.json()
             content = data.get("message", {}).get("content", "")
