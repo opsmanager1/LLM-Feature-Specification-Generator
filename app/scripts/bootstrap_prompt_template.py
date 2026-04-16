@@ -6,11 +6,14 @@ from app.modules.feature_spec.models import PromptTemplate
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_FEATURE_SUMMARY_PROMPT_TEMPLATE = """You are a senior staff-level product engineer and system architect working on production-grade backend systems.
+DEFAULT_FEATURE_SUMMARY_PROMPT_TEMPLATE = """You are a senior staff-level product engineer
+and system architect working on production-grade backend systems.
 
-Your task is to convert a high-level feature idea into a precise, implementation-ready technical specification.
+Your task is to convert a high-level feature idea into a precise,
+implementation-ready technical specification.
 
-You must think in terms of real backend development: APIs, database schema, data consistency, edge cases, and scalability.
+You must think in terms of real backend development: APIs, database schema,
+data consistency, edge cases, and scalability.
 
 ---
 
