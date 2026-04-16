@@ -68,7 +68,7 @@ class Settings(BaseSettings):
 
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "mistral"
-    OLLAMA_TIMEOUT: int = 120
+    OLLAMA_TIMEOUT: int = 180
     OLLAMA_CONNECT_TIMEOUT: int = 10
     OLLAMA_MAX_RETRIES: int = 2
     OLLAMA_RETRY_BACKOFF_SECONDS: float = 1.0
@@ -80,6 +80,11 @@ class Settings(BaseSettings):
     LLM_TAG: str = "llm"
     LLM_PROMPT_MAX_LENGTH: int = 8000
     FEATURE_SPEC_HISTORY_DEFAULT_LIMIT: int = 10
+
+    CELERY_BROKER_URL: str = "redis://redis:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://redis:6379/1"
+    CELERY_TASK_MAX_RETRIES: int = 3
+    CELERY_TASK_RETRY_BASE_SECONDS: int = 2
 
     model_config = SettingsConfigDict(
         env_file=".env",

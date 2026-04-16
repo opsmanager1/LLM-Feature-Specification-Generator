@@ -3,6 +3,7 @@ from sqlalchemy import select
 
 from app.core.settings import settings
 from app.modules.feature_spec.models import FeatureSpecRun
+from app.modules.feature_spec.parser import normalize_feature_summary_payload
 from app.modules.feature_spec.prompts.feature_summary import (
     build_feature_summary_prompt_from_db,
     parse_feature_summary_response,
@@ -92,7 +93,9 @@ def get_feature_spec_history(
             feature_idea=row.feature_idea,
             status=row.status,
             response_json=(
-                FeatureSummaryResult.model_validate(row.response_json)
+                FeatureSummaryResult.model_validate(
+                    normalize_feature_summary_payload(row.response_json)
+                )
                 if row.response_json is not None
                 else None
             ),

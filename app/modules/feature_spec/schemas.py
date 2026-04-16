@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 
 from app.core.settings import settings
 
@@ -36,38 +36,22 @@ class FeatureSummaryResult(BaseModel):
     db_models_and_api_endpoints: DbModelsAndApiEndpoints
     risk_assessment: list[str]
 
-    @model_validator(mode="before")
-    @classmethod
-    def normalize_legacy_user_stories(cls, data):
-        if not isinstance(data, dict):
-            return data
-
-        normalized = dict(data)
-
-        if "user_stories" not in normalized and "feature_summary_items" in normalized:
-            normalized["user_stories"] = normalized["feature_summary_items"]
-
-        if "acceptance_criteria" not in normalized:
-            if "acceptance" in normalized:
-                normalized["acceptance_criteria"] = normalized["acceptance"]
-
-        if "db_models_and_api_endpoints" not in normalized:
-            db_models = normalized.get("db_models", [])
-            api_endpoints = normalized.get("api_endpoints", [])
-            normalized["db_models_and_api_endpoints"] = {
-                "db_models": db_models,
-                "api_endpoints": api_endpoints,
-            }
-
-        if "risk_assessment" not in normalized and "risks" in normalized:
-            normalized["risk_assessment"] = normalized["risks"]
-
-        return normalized
-
 
 class FeatureSpecGenerateResponse(BaseModel):
     feature_idea: str
     feature_summary: FeatureSummaryResult
+
+
+class FeatureSpecTaskSubmitResponse(BaseModel):
+    task_id: str
+    status: Literal["processing"]
+
+
+class FeatureSpecTaskStatusResponse(BaseModel):
+    task_id: str
+    status: Literal["PENDING", "STARTED", "SUCCESS", "FAILURE"]
+    result: dict[str, Any] | None = None
+    error: str | None = None
 
 
 class FeatureSpecHistoryItem(BaseModel):

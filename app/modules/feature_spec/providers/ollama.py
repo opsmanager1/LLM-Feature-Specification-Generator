@@ -54,6 +54,11 @@ class OllamaClient:
                     message = data.get("message", {})
                     content = message.get("content", "")
                     return content if isinstance(content, str) else str(content)
+                except (json.JSONDecodeError, ValueError) as exc:
+                    if attempt < self._max_retries:
+                        await self._backoff(attempt)
+                        continue
+                    raise RuntimeError("Ollama returned invalid JSON response") from exc
                 except httpx.TimeoutException as exc:
                     if attempt < self._max_retries:
                         await self._backoff(attempt)
@@ -90,6 +95,7 @@ class OllamaClient:
                 try:
                     async with client.stream("POST", url, json=payload) as response:
                         response.raise_for_status()
+                        stream_done = False
                         async for line in response.aiter_lines():
                             if not line:
                                 continue
@@ -103,8 +109,10 @@ class OllamaClient:
                                 yielded_any = True
                                 yield token
                             if chunk.get("done"):
+                                stream_done = True
                                 return
-                        return
+                        if not stream_done:
+                            raise RuntimeError("Ollama stream ended before completion")
                 except httpx.TimeoutException as exc:
                     if not yielded_any and attempt < self._max_retries:
                         await self._backoff(attempt)
