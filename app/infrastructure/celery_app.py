@@ -11,6 +11,7 @@ celery_app = Celery(
 )
 
 celery_app.conf.update(
+    broker_connection_retry_on_startup=True,
     task_track_started=True,
     task_serializer="json",
     result_serializer="json",
