@@ -19,7 +19,7 @@ Production-ready FastAPI backend for authentication, LLM-powered specification g
 
 - JWT authentication based on fastapi-users
 - User registration and user management endpoints
-- LLM generation endpoint with multiple response formats (text, sections, json)
+- Feature specification generation endpoints powered by Ollama
 - Readiness and health probes for runtime checks
 - Alembic database migrations
 - Security middleware baseline:
@@ -49,8 +49,8 @@ Production-ready FastAPI backend for authentication, LLM-powered specification g
 - app/api/: health, readiness, OpenAPI customization
 - app/middlewares/: security middleware composition and implementations
 - app/modules/auth/: auth domain (models, schemas, dependencies, router)
-- app/modules/llm/: LLM API, schemas, providers
-- app/scripts/: utility scripts (admin bootstrap)
+- app/modules/feature_spec/: feature spec API, schemas, prompts, providers
+- app/scripts/: utility scripts (admin and prompt/model bootstrap)
 - alembic/: migration config and versions
 - docker-compose.yml: containerized app run
 
@@ -97,6 +97,7 @@ source venv/bin/activate
 
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 python -m alembic upgrade head
 python -m app.scripts.bootstrap_admin
@@ -133,11 +134,13 @@ curl http://localhost:11434/api/generate -d '{
 
 ## API Docs
 
-When server is running:
+When server is running locally:
 
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc (pinned ReDoc 2.x script)
 - OpenAPI JSON: http://localhost:8000/openapi.json
+
+For Docker Compose deployment, use port 8001 instead of 8000.
 
 ## API Endpoints
 
@@ -169,16 +172,16 @@ Login note:
 - `/api/v1/auth/jwt/logout` clears refresh cookie on client side.
 - Swagger `Authorize` value must contain only raw JWT token (without `Bearer ` prefix).
 
-### LLM
+### Feature Spec
 
-- POST /api/v1/llm/generate
+- POST /api/v1/feature-spec/generate
+- GET /api/v1/feature-spec/history?limit=10
 
-Request body example:
+Request body example for generation:
 
 ```json
 {
-  "prompt": "Generate API specification for user profile module",
-  "response_format": "sections"
+  "feature_idea": "payment for premium posts"
 }
 ```
 
@@ -187,7 +190,7 @@ Request body example:
 Run linter:
 
 ```bash
-python -m flake8
+python -m flake8 .
 ```
 
 Run auth unit tests:
