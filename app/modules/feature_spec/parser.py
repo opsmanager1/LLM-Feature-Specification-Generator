@@ -48,6 +48,35 @@ def _normalize_acceptance_criteria(value) -> list[str] | None:
     return normalized_items or None
 
 
+def _normalize_risk_assessment(value) -> list[str] | None:
+    if value is None:
+        return None
+
+    items = value if isinstance(value, list) else [value]
+    normalized_items: list[str] = []
+
+    for item in items:
+        if isinstance(item, str):
+            text = item.strip()
+        elif isinstance(item, dict):
+            text = next(
+                (
+                    candidate.strip()
+                    for key in ("title", "risk", "description", "details", "message")
+                    if isinstance((candidate := item.get(key)), str)
+                    and candidate.strip()
+                ),
+                str(item).strip(),
+            )
+        else:
+            text = str(item).strip()
+
+        if text:
+            normalized_items.append(text)
+
+    return normalized_items or None
+
+
 def normalize_feature_summary_payload(data: dict | list) -> dict | list:
     if not isinstance(data, dict):
         return data
@@ -71,8 +100,13 @@ def normalize_feature_summary_payload(data: dict | list) -> dict | list:
             "api_endpoints": normalized.get("api_endpoints", []),
         }
 
-    if _is_missing(normalized.get("risk_assessment")) and "risks" in normalized:
-        normalized["risk_assessment"] = normalized["risks"]
+    risk_source = normalized.get("risk_assessment")
+    if _is_missing(risk_source):
+        risk_source = normalized.get("risks")
+
+    normalized_risks = _normalize_risk_assessment(risk_source)
+    if normalized_risks is not None:
+        normalized["risk_assessment"] = normalized_risks
 
     return normalized
 
