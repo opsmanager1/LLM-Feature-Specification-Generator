@@ -1,6 +1,6 @@
 <div align="center">
 
-# Specification Generator API
+# Feature Specification Generator API
 
 Production-ready FastAPI backend with async LLM generation via Celery + Redis, JWT auth, and Docker Compose orchestration.
 
