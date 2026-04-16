@@ -49,8 +49,8 @@ Production-ready FastAPI backend with async LLM generation via Celery + Redis, J
 - fastapi-users
 - Celery
 - Redis
-- PostgreSQL (via DATABASE_URL)
-- Ollama (LLM provider)
+- PostgreSQL
+- Ollama
 - Pytest
 
 ## Architecture (Async Flow)
