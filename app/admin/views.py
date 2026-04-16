@@ -22,7 +22,6 @@ class UserAdmin(ModelView, model=User):
     column_filters = [User.is_active, User.is_superuser, User.is_verified, User.created_at]
     column_sortable_list = [User.id, User.username, User.email, User.created_at]
 
-    column_exclude_list = [User.hashed_password]
     form_excluded_columns = [User.hashed_password, User.created_at]
     can_create = False
     can_delete = False
@@ -44,7 +43,6 @@ class RefreshTokenAdmin(ModelView, model=RefreshToken):
     column_filters = [RefreshToken.expires_at, RefreshToken.created_at, RefreshToken.revoked_at]
     column_sortable_list = [RefreshToken.id, RefreshToken.user_id, RefreshToken.expires_at]
 
-    column_exclude_list = [RefreshToken.token_hash]
     form_excluded_columns = [RefreshToken.token_hash, RefreshToken.created_at]
     can_create = False
     can_edit = False
