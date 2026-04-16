@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from fastapi.openapi.docs import get_redoc_html
 
+from app.admin import setup_admin
 from app.api.health import router as health_router
-from app.api.openapi import configure_openapi_bearer_auth
+from app.api.openapi import configure_openapi_bearer_auth, configure_redoc_route
 from app.core.settings import settings
 from app.core.startup import lifespan
 from app.middlewares import configure_security_middlewares
@@ -16,6 +16,8 @@ app = FastAPI(
     redoc_url=None,
 )
 
+setup_admin(app)
+
 configure_security_middlewares(app)
 
 app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
@@ -23,12 +25,4 @@ app.include_router(feature_spec_router, prefix=settings.API_V1_PREFIX)
 app.include_router(health_router)
 
 configure_openapi_bearer_auth(app)
-
-
-@app.get("/redoc", include_in_schema=False)
-async def redoc_html():
-    return get_redoc_html(
-        openapi_url=app.openapi_url,
-        title=f"{app.title} - ReDoc",
-        redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@2.1.5/bundles/redoc.standalone.js",
-    )
+configure_redoc_route(app)
