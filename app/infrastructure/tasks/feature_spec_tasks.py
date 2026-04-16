@@ -13,8 +13,16 @@ from app.modules.feature_spec.prompts.feature_summary import (
 from app.modules.feature_spec.schemas import FeatureSummaryResult
 
 
+def _ensure_auth_models_loaded() -> None:
+    # Import at runtime to register referenced tables in SQLAlchemy metadata.
+    from app.modules.auth import models as auth_models
+
+    _ = auth_models.User
+
+
 @celery_app.task(bind=True, name="feature_spec.generate")
 def generate_feature_spec_task(self, run_id: int, feature_idea: str, user_id: int) -> dict:
+    _ensure_auth_models_loaded()
     db = SessionLocal()
     try:
         run = db.get(FeatureSpecRun, run_id)
@@ -60,12 +68,14 @@ def generate_feature_spec_task(self, run_id: int, feature_idea: str, user_id: in
                 except MaxRetriesExceededError:
                     pass
 
+            db.rollback()
             run.status = "error"
             run.error_message = "LLM provider request failed"
             db.add(run)
             db.commit()
             raise RuntimeError("LLM task failed after retries") from exc
         except Exception as exc:
+            db.rollback()
             run.status = "error"
             run.error_message = "Failed to process feature specification"
             db.add(run)
