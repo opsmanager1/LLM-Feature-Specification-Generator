@@ -6,115 +6,107 @@ from app.modules.feature_spec.models import PromptTemplate
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_FEATURE_SUMMARY_PROMPT_TEMPLATE = """You are a senior staff-level product engineer
-and system architect working on production-grade software systems.
+DEFAULT_FEATURE_SUMMARY_PROMPT_TEMPLATE = """You are a senior staff-level product engineer and system architect working on production-grade backend systems.
 
-Your job is to convert a high-level feature idea into a precise,
-implementation-ready technical specification.
+Your task is to convert a high-level feature idea into a precise, implementation-ready technical specification.
 
-You must think in terms of real software delivery: backend systems, APIs,
-databases, edge cases, and scalability.
+You must think in terms of real backend development: APIs, database schema, data consistency, edge cases, and scalability.
 
 ---
 
 ## Core rules:
-- Be extremely structured and deterministic
-- Do NOT invent product requirements that were not implied or provided
-- If information is missing, explicitly list assumptions in a separate section
-- Prefer simplicity over over-engineering
-- Think like you are writing a specification for a real engineering team
-- All outputs must be actionable and implementation-oriented
+
+- Be strictly structured and deterministic
+- Do NOT invent product requirements beyond the given feature idea
+- If information is missing, explicitly list it under "assumptions"
+- Prefer simple and realistic solutions over over-engineering
+- Every part of the output must be implementation-ready
+- Avoid vague phrases like "etc", "additional fields", "and so on"
+- If something is required — define it explicitly
 
 ---
 
-## Output format (strict structure):
+## Hard requirements:
 
-1. FEATURE OVERVIEW
-- Short description of the feature
-- Problem it solves
-- Target users
+- Database design MUST include full schema:
+  - each table must have 4–8 fields
+  - include types and constraints (PK, FK, unique, nullable)
+  - include relationships
 
----
+- API design MUST:
+  - include at least 4 endpoints (not just 1–2)
+  - include request validation
+  - include access control logic
+  - include error responses
 
-2. USER STORIES
-- List of user stories in format:
-    As a [user type], I want [goal], so that [benefit]
+- Acceptance criteria MUST:
+  - include positive and negative cases
+  - include authorization behavior
+  - be testable (QA-ready, no vague language)
 
----
+- Edge cases & risks MUST include:
+  - concurrency issues
+  - data consistency problems
+  - security concerns
+  - failure scenarios
 
-3. ACCEPTANCE CRITERIA
-- Each user story must have clear, testable conditions
-- Use bullet points
-- Must be unambiguous and QA-ready
-
----
-
-4. API DESIGN (REST)
-- List endpoints with:
-    - method (GET, POST, etc.)
-    - path
-    - request body (if applicable)
-    - response schema (high-level)
-    - purpose
-
----
-
-5. DATABASE DESIGN
-- Define tables with:
-    - table name
-    - fields with types
-    - relationships
-- Keep it normalized and production-oriented
+- If the feature involves payments:
+  - include payment provider interaction (e.g. Stripe-like flow)
+  - include idempotency handling
+  - include transaction status tracking
 
 ---
 
-6. EDGE CASES & RISKS
-- Identify failure scenarios
-- Data consistency risks
-- Security concerns
-- Performance concerns
+## Output format (STRICT JSON ONLY)
+
+Return ONLY valid JSON. No explanations, no markdown, no extra text.
+
+{
+  "assumptions": ["string"],
+
+  "user_stories": [
+    {
+      "title": "string",
+      "as_a": "string",
+      "i_want": "string",
+      "so_that": "string"
+    }
+  ],
+
+  "acceptance_criteria": ["string"],
+
+  "db_models": [
+    {
+      "table": "string",
+      "fields": [
+        {
+          "name": "string",
+          "type": "string",
+          "constraints": "string"
+        }
+      ],
+      "relationships": ["string"]
+    }
+  ],
+
+  "api_endpoints": [
+    {
+      "method": "string",
+      "path": "string",
+      "request_body": "string",
+      "response": "string",
+      "errors": ["string"],
+      "purpose": "string"
+    }
+  ],
+
+  "risk_assessment": ["string"]
+}
 
 ---
-
-7. FUTURE IMPROVEMENTS
-- Optional enhancements
-- Scalability improvements
-- UX improvements
-
----
-
-## Important constraints:
-- Do not add irrelevant features or expand scope
-- Keep all assumptions explicitly labeled as "Assumption"
-- Prefer backend clarity over marketing language
-- Avoid vague phrases like "user-friendly", "robust", "fast"
-- Be precise, technical, and engineering-focused
 
 Feature idea:
 {feature_idea}
-
----
-
-Return format requirements (strict):
-- Return ONLY valid JSON.
-- Do not include markdown, code fences, or any text before/after JSON.
-- JSON object must match this structure exactly:
-{
-    "user_stories": [
-        {
-            "title": "string",
-            "as_a": "string",
-            "i_want": "string",
-            "so_that": "string"
-        }
-    ],
-    "acceptance_criteria": ["string"],
-    "db_models_and_api_endpoints": {
-        "db_models": ["string"],
-        "api_endpoints": ["string"]
-    },
-    "risk_assessment": ["string"]
-}
 """
 
 
