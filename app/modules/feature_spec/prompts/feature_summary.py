@@ -4,7 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.modules.feature_spec.models import PromptTemplate
-from app.modules.feature_spec.parser import extract_json, normalize_whitespace, strip_markdown
+from app.modules.feature_spec.parser import (
+    extract_json,
+    normalize_feature_summary_payload,
+    normalize_whitespace,
+    strip_markdown,
+)
 
 
 def build_feature_summary_prompt_from_template(template: str, feature_idea: str) -> str:
@@ -37,4 +42,5 @@ def build_feature_summary_prompt_from_db(feature_idea: str, db: Session) -> str:
 
 def parse_feature_summary_response(raw_response: str) -> dict | list:
     normalized_content = normalize_whitespace(strip_markdown(raw_response))
-    return extract_json(normalized_content)
+    parsed = extract_json(normalized_content)
+    return normalize_feature_summary_payload(parsed)
