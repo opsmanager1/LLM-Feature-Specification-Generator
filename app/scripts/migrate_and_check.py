@@ -1,4 +1,5 @@
 import logging
+import importlib
 from pathlib import Path
 import re
 import subprocess
@@ -31,7 +32,35 @@ def _extract_revisions(raw_output: str) -> set[str]:
     return revisions
 
 
+def _has_migration_files() -> bool:
+    versions_dir = _project_root() / "alembic" / "versions"
+    return any(versions_dir.glob("*.py"))
+
+
+def _bootstrap_schema_without_migrations() -> None:
+    importlib.import_module("app.modules.auth.models")
+    importlib.import_module("app.modules.feature_spec.models")
+    from app.core.database import Base, engine
+
+    logger.warning(
+        "No Alembic migration files found; creating schema via SQLAlchemy metadata"
+    )
+    if not Base.metadata.tables:
+        raise RuntimeError(
+            "No SQLAlchemy models are registered; cannot bootstrap schema"
+        )
+    Base.metadata.create_all(bind=engine)
+    logger.info(
+        "Schema created via SQLAlchemy metadata (tables=%s)",
+        sorted(Base.metadata.tables.keys()),
+    )
+
+
 def migrate_and_check() -> None:
+    if not _has_migration_files():
+        _bootstrap_schema_without_migrations()
+        return
+
     logger.info("Running Alembic upgrade to head")
     _run_alembic("upgrade", "head")
 

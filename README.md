@@ -19,7 +19,7 @@ Production-ready FastAPI backend for authentication, LLM-powered specification g
 
 - JWT authentication based on fastapi-users
 - User registration and user management endpoints
-- LLM generation endpoint with multiple response formats (text, sections, json)
+- Feature specification generation endpoints powered by Ollama
 - Readiness and health probes for runtime checks
 - Alembic database migrations
 - Security middleware baseline:
@@ -49,8 +49,8 @@ Production-ready FastAPI backend for authentication, LLM-powered specification g
 - app/api/: health, readiness, OpenAPI customization
 - app/middlewares/: security middleware composition and implementations
 - app/modules/auth/: auth domain (models, schemas, dependencies, router)
-- app/modules/llm/: LLM API, schemas, providers
-- app/scripts/: utility scripts (admin bootstrap)
+- app/modules/feature_spec/: feature spec API, schemas, prompts, providers
+- app/scripts/: utility scripts (admin and prompt/model bootstrap)
 - alembic/: migration config and versions
 - docker-compose.yml: containerized app run
 
@@ -60,8 +60,7 @@ Production-ready FastAPI backend for authentication, LLM-powered specification g
 
 - Python 3.10+
 - PostgreSQL database
-- Optional: Docker + Docker Compose
-- Optional: local Ollama instance for LLM generation
+- Optional: Docker + Docker Compose (recommended for VPS)
 
 ### 1) Configure environment
 
@@ -83,6 +82,10 @@ LLM values:
 - OLLAMA_BASE_URL
 - OLLAMA_MODEL
 
+For Docker Compose in this project use:
+
+- OLLAMA_BASE_URL=http://ollama:11434
+
 ### 2A) Run locally
 
 ```bash
@@ -94,32 +97,50 @@ source venv/bin/activate
 
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 python -m alembic upgrade head
 python -m app.scripts.bootstrap_admin
+python -m app.scripts.bootstrap_prompt_template
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### 2B) Run with Docker
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 Notes:
 
 - Container entrypoint automatically runs:
   - migration + DB head check (`python -m app.scripts.migrate_and_check`)
-  - admin bootstrap script
+  - admin bootstrap script (`python -m app.scripts.bootstrap_admin`)
+  - prompt template bootstrap script (`python -m app.scripts.bootstrap_prompt_template`)
+  - Ollama model bootstrap (`python -m app.scripts.ensure_ollama_model`)
   - uvicorn app startup
+- On first deploy, startup may take longer while the configured `OLLAMA_MODEL` is downloaded.
+- FastAPI container reaches Ollama via internal Docker network URL: http://ollama:11434
+
+Verify Ollama API:
+
+```bash
+curl http://localhost:11434/api/generate -d '{
+  "model": "mistral",
+  "prompt": "hello",
+  "stream": false
+}'
+```
 
 ## API Docs
 
-When server is running:
+When server is running locally:
 
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc (pinned ReDoc 2.x script)
 - OpenAPI JSON: http://localhost:8000/openapi.json
+
+For Docker Compose deployment, use port 8001 instead of 8000.
 
 ## API Endpoints
 
@@ -151,16 +172,16 @@ Login note:
 - `/api/v1/auth/jwt/logout` clears refresh cookie on client side.
 - Swagger `Authorize` value must contain only raw JWT token (without `Bearer ` prefix).
 
-### LLM
+### Feature Spec
 
-- POST /api/v1/llm/generate
+- POST /api/v1/feature-spec/generate
+- GET /api/v1/feature-spec/history?limit=10
 
-Request body example:
+Request body example for generation:
 
 ```json
 {
-  "prompt": "Generate API specification for user profile module",
-  "response_format": "sections"
+  "feature_idea": "payment for premium posts"
 }
 ```
 
@@ -169,7 +190,7 @@ Request body example:
 Run linter:
 
 ```bash
-python -m flake8
+python -m flake8 .
 ```
 
 Run auth unit tests:
@@ -208,3 +229,4 @@ If LLM requests fail:
 
 - Verify OLLAMA_BASE_URL
 - Ensure Ollama is running and model is available
+- For Docker deployment, ensure OLLAMA_BASE_URL is http://ollama:11434
