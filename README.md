@@ -15,6 +15,9 @@ Production-ready FastAPI backend with async LLM generation via Celery + Redis, J
     <img alt="alembic" src="https://img.shields.io/badge/Alembic-migrations-222222"/>
     <img alt="tests" src="https://img.shields.io/badge/tests-pytest-0A9EDC"/>
     <img alt="docs" src="https://img.shields.io/badge/docs-Swagger%20%2B%20ReDoc-85EA2D"/>
+    <img alt="celery" src="https://img.shields.io/badge/Celery-task%20queue-37814A?logo=celery&logoColor=white"/>
+    <img alt="redis" src="https://img.shields.io/badge/Redis-cache%20%2F%20broker-DC382D?logo=redis&logoColor=white"/>
+    <img alt="ollama" src="https://img.shields.io/badge/Ollama-local%20LLM-black"/>
 </p>
 
 </div>
