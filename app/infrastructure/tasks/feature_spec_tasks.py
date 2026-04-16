@@ -14,7 +14,6 @@ from app.modules.feature_spec.schemas import FeatureSummaryResult
 
 
 def _ensure_auth_models_loaded() -> None:
-    # Import at runtime to register referenced tables in SQLAlchemy metadata.
     from app.modules.auth import models as auth_models
 
     _ = auth_models.User
