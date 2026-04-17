@@ -8,14 +8,21 @@ services:
     env_file:
       - .env
     ports:
-      - "8000:8000"
+      - "${FASTAPI_HOST_PORT:-8005}:${FASTAPI_CONTAINER_PORT:-8001}"
+    depends_on:
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      celery-worker:
+        condition: service_healthy
     healthcheck:
       test:
         [
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)",
         ]
       interval: 30s
       timeout: 5s
@@ -23,3 +30,69 @@ services:
       start_period: 20s
     stop_grace_period: 20s
     restart: unless-stopped
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: specification-generator-celery-worker
+    init: true
+    env_file:
+      - .env
+    command: ["celery", "-A", "app.infrastructure.celery_app:celery_app", "worker", "--loglevel=INFO"]
+    depends_on:
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "from app.infrastructure.celery_app import celery_app; import sys; i=celery_app.control.inspect(timeout=2); sys.exit(0 if i and i.ping() else 1)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: specification-generator-redis
+    init: true
+    ports:
+      - "${REDIS_HOST_PORT:-6380}:${REDIS_CONTAINER_PORT:-6379}"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: specification-generator-ollama
+    init: true
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "ollama",
+          "list",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  ollama:

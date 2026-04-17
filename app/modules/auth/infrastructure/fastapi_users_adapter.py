@@ -1,10 +1,13 @@
 from collections.abc import AsyncGenerator
+from typing import Any
 
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users import BaseUserManager, FastAPIUsers, IntegerIDMixin
 from fastapi_users.authentication import (AuthenticationBackend,
                                           BearerTransport, JWTStrategy)
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_async_db
@@ -12,15 +15,45 @@ from app.core.settings import settings
 from app.modules.auth.models import User
 
 
+class UsernameAwareUserDatabase(SQLAlchemyUserDatabase):
+    async def get_by_username(self, username: str) -> User | None:
+        statement = select(User).where(User.username == username)
+        return await self._get_user(statement)
+
+
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     reset_password_token_secret = settings.SECRET_KEY
     verification_token_secret = settings.SECRET_KEY
+
+    async def authenticate(
+        self, credentials: OAuth2PasswordRequestForm
+    ) -> User | None:
+        if (user := await self.user_db.get_by_username(credentials.username)) is None:
+            return None
+
+        verified, updated_password_hash = self.password_helper.verify_and_update(
+            credentials.password, user.hashed_password
+        )
+        if not verified:
+            return None
+
+        if updated_password_hash is not None:
+            await self.user_db.update(user, {"hashed_password": updated_password_hash})
+
+        return user
+
+    async def create(self, user_create: Any, safe: bool = False, request: Any = None):
+        if safe:
+            user_create = user_create.model_copy(
+                update={"is_superuser": False, "is_verified": False}
+            )
+        return await super().create(user_create, safe=safe, request=request)
 
 
 async def get_user_db(
     session: AsyncSession = Depends(get_async_db),
 ) -> AsyncGenerator[SQLAlchemyUserDatabase, None]:
-    yield SQLAlchemyUserDatabase(session, User)
+    yield UsernameAwareUserDatabase(session, User)
 
 
 async def get_user_manager(
@@ -39,6 +72,13 @@ def get_jwt_strategy() -> JWTStrategy:
         secret=settings.SECRET_KEY,
         lifetime_seconds=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         * settings.ACCESS_TOKEN_MINUTE_IN_SECONDS,
+    )
+
+
+def get_refresh_jwt_strategy() -> JWTStrategy:
+    return JWTStrategy(
+        secret=settings.SECRET_KEY,
+        lifetime_seconds=settings.AUTH_REFRESH_TOKEN_EXPIRE_SECONDS,
     )
 
 

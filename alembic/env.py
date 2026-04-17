@@ -1,15 +1,27 @@
 import logging
 from logging.config import fileConfig
+from importlib import import_module
+import pkgutil
 
-from sqlalchemy import engine_from_config, pool, text
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from importlib import import_module
 
 from app.core.database import Base, _normalize_database_url
 from app.core.settings import settings
 
-import_module("app.modules.auth.models")
+
+def _import_all_models() -> None:
+    modules_pkg = import_module("app.modules")
+    for module in pkgutil.iter_modules(modules_pkg.__path__, "app.modules."):
+        model_module_name = f"{module.name}.models"
+        try:
+            import_module(model_module_name)
+        except ModuleNotFoundError:
+            continue
+
+
+_import_all_models()
 
 config = context.config
 logger = logging.getLogger("alembic.runtime.migration")
@@ -20,35 +32,6 @@ if config.config_file_name is not None:
 config.set_main_option("sqlalchemy.url", _normalize_database_url(settings.DATABASE_URL))
 
 target_metadata = Base.metadata
-
-
-def _ensure_version_num_capacity(connection) -> None:
-    """Prevent failures when custom revision IDs are longer than 32 chars."""
-    result = connection.execute(
-        text(
-            """
-            SELECT character_maximum_length
-            FROM information_schema.columns
-            WHERE table_schema = current_schema()
-              AND table_name = 'alembic_version'
-              AND column_name = 'version_num'
-            """
-        )
-    ).scalar_one_or_none()
-
-    if result is None:
-        return
-
-    if result < 255:
-        logger.warning(
-            "Expanding alembic_version.version_num from %s to 255 chars for revision-id safety",
-            result,
-        )
-        connection.execute(
-            text(
-                "ALTER TABLE alembic_version ALTER COLUMN version_num TYPE VARCHAR(255)"
-            )
-        )
 
 
 def run_migrations_offline() -> None:
@@ -73,7 +56,6 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        _ensure_version_num_capacity(connection)
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
