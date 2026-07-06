@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from app.core.settings import settings
+from app.infrastructure.ollama_client import ollama_sync_client
 from app.modules.feature_spec.models import FeatureSpecRun
 from app.modules.feature_spec.parser import normalize_feature_summary_payload
 from app.modules.feature_spec.prompts.feature_summary import (
@@ -71,6 +72,47 @@ async def generate_feature_spec(
     user_id: int,
 ) -> FeatureSpecGenerateResponse:
     return await orchestrator.generate(feature_idea, db, user_id)
+
+
+def execute_feature_spec_run(run_id: int, feature_idea: str, db: Session) -> dict:
+    run = db.get(FeatureSpecRun, run_id)
+    if run is None:
+        return {"run_id": run_id, "status": "error", "message": "Run not found"}
+
+    if run.status == "success" and run.response_json is not None:
+        return {
+            "run_id": run.id,
+            "status": run.status,
+            "feature_idea": run.feature_idea,
+            "feature_summary": run.response_json,
+        }
+
+    prompt = build_feature_summary_prompt_from_db(feature_idea, db)
+    feature_summary_raw = ollama_sync_client.generate(prompt)
+    feature_summary_json = parse_feature_summary_response(feature_summary_raw)
+    feature_summary_typed = FeatureSummaryResult.model_validate(feature_summary_json)
+
+    run.status = "success"
+    run.response_json = feature_summary_typed.model_dump(mode="json")
+    run.error_message = None
+    db.add(run)
+    db.commit()
+
+    return {
+        "run_id": run.id,
+        "status": run.status,
+        "feature_idea": run.feature_idea,
+        "feature_summary": run.response_json,
+    }
+
+
+def mark_run_error(db: Session, run_id: int, message: str) -> None:
+    run = db.get(FeatureSpecRun, run_id)
+    if run is not None:
+        run.status = "error"
+        run.error_message = message
+        db.add(run)
+        db.commit()
 
 
 def get_feature_spec_history(
